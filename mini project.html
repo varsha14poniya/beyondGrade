@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>BeyondGrade</title>
+
+    <!-- ================= CSS (how it looks) ================= -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #d9dc7a;
+            margin: 0;
+            text-align: center;
+        }
+
+        /* the big coloured top part */
+        #header {
+            background-color: #0b3c49;
+            color: rgb(241, 236, 134);
+            padding: 40px 20px;
+        }
+
+        /* ---------- Tabs ---------- */
+        #tabs {
+            background-color: #08303a;
+            padding: 10px;
+        }
+
+        #tabs button {
+            background-color: transparent;
+            color: white;
+            padding: 10px 22px;
+            margin: 0 4px;
+            border: none;
+            font-size: 16px;
+        }
+
+        #tabs button:hover {
+            color: #ffc857;
+        }
+
+        /* the tab you are currently on */
+        #tabs button.active {
+            background-color: #ffc857;
+            color: #0b3c49;
+            font-weight: bold;
+        }
+
+        /* every page is hidden until its tab is clicked */
+        .page {
+            display: none;
+            padding-bottom: 40px;
+        }
+
+        /* ---------- Home tab ---------- */
+        #welcomeBox {
+            width: 500px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: rgb(255, 255, 255);
+            border: 2px solid #0b3c49;
+        }
+
+        #welcomeBox ul {
+            text-align: left;
+            line-height: 1.8;
+        }
+
+        /* ---------- Add tab ---------- */
+        #formBox {
+            width: 400px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: rgb(103, 174, 89);
+            border: 2px solid #0b3c49;
+        }
+
+        input, select, textarea {
+            width: 90%;
+            padding: 8px;
+            margin: 5px 0 12px 0;
+        }
+
+        button {
+            background-color: #ffc857;
+            padding: 10px 25px;
+            border: none;
+            font-size: 16px;
+        }
+
+        /* ---------- Achievements tab ---------- */
+        #filterBox select {
+            width: 200px;
+        }
+
+        .card {
+            display: inline-block;
+            width: 250px;
+            margin: 10px;
+            padding: 15px;
+            background-color: rgb(186, 195, 239);
+            border: 1px solid #0b3c49;
+            vertical-align: top;
+        }
+
+        .card img {
+            width: 100%;
+        }
+
+        /* ---------- Stats tab ---------- */
+        .statBox {
+            display: inline-block;
+            width: 150px;
+            margin: 10px;
+            padding: 15px;
+            background-color: rgb(186, 195, 239);
+            border: 2px solid #0b3c49;
+        }
+
+        .statBox h3 {
+            font-size: 40px;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ================= HTML (what is on the page) ================= -->
+
+    <!-- Header (shown on every tab) -->
+    <div id="header">
+        <h1>BeyondGrade</h1>
+        <p>All my achievements and memories in one place</p>
+    </div>
+
+    <!-- Tab buttons -->
+    <div id="tabs">
+        <button id="tab-home" onclick="showTab('home')">Home</button>
+        <button id="tab-add" onclick="showTab('add')">Add</button>
+        <button id="tab-list" onclick="showTab('list')">Achievements</button>
+        <button id="tab-stats" onclick="showTab('stats')">Stats</button>
+    </div>
+
+    <!-- TAB 1: Home -->
+    <div id="page-home" class="page">
+        <div id="welcomeBox">
+            <h2>Welcome to BeyondGrade!</h2>
+            <p>Your grades are only one part of your story.</p>
+            <ul>
+                <li>Add your achievements, photos and certificates.</li>
+                <li>Filter them by category.</li>
+                <li>See your numbers on the Stats tab.</li>
+            </ul>
+            <button onclick="showTab('add')">Add my first achievement</button>
+        </div>
+    </div>
+
+    <!-- TAB 2: Add -->
+    <div id="page-add" class="page">
+        <div id="formBox">
+            <h2>Add Achievement</h2>
+
+            <input type="text" id="title" placeholder="Title">
+
+            <select id="category">
+                <option>Academics</option>
+                <option>Sports</option>
+                <option>Extra-curricular</option>
+                <option>Personal</option>
+            </select>
+
+            <input type="date" id="date">
+
+            <textarea id="description" placeholder="Description"></textarea>
+
+            <input type="text" id="photo" placeholder="Photo file name (optional) e.g. me.jpg">
+
+            <input type="text" id="certificate" placeholder="Certificate file name (optional) e.g. cert.pdf">
+
+            <button onclick="addAchievement()">Add</button>
+        </div>
+    </div>
+
+    <!-- TAB 3: Achievements -->
+    <div id="page-list" class="page">
+        <h2>My Achievements</h2>
+
+        <div id="filterBox">
+            <p>Show:
+                <select id="filter" onchange="showAchievements()">
+                    <option>All</option>
+                    <option>Academics</option>
+                    <option>Sports</option>
+                    <option>Extra-curricular</option>
+                    <option>Personal</option>
+                </select>
+            </p>
+            <p id="count"></p>
+        </div>
+
+        <div id="list"></div>
+    </div>
+
+    <!-- TAB 4: Stats -->
+    <div id="page-stats" class="page">
+        <h2>My Stats</h2>
+        <div id="stats"></div>
+    </div>
+
+    <!-- ================= JAVASCRIPT (what it does) ================= -->
+    <script>
+        // 1. This list stores all the achievements
+        let achievements = [
+            { title: "Won Quiz Competition", category: "Academics", date: "2023-01-14", description: "Our team won first place.", photo: "", certificate: "" },
+            { title: "First Day of College", category: "Personal", date: "2025-08-04", description: "Met my best friend.", photo: "", certificate: "" }
+        ];
+
+        // 2. Names of the tabs and categories (used in loops)
+        let tabNames = ["home", "add", "list", "stats"];
+        let categories = ["Academics", "Sports", "Extra-curricular", "Personal"];
+
+        // 3. This switches tabs: hide every page, then show the chosen one
+        function showTab(name) {
+            for (let i = 0; i < tabNames.length; i++) {
+                document.getElementById("page-" + tabNames[i]).style.display = "none";
+                document.getElementById("tab-" + tabNames[i]).classList.remove("active");
+            }
+
+            document.getElementById("page-" + name).style.display = "block";
+            document.getElementById("tab-" + name).classList.add("active");
+
+            // refresh the page we are opening
+            if (name === "list") {
+                showAchievements();
+            }
+            if (name === "stats") {
+                showStats();
+            }
+        }
+
+        // 4. This runs when the "Add" button is clicked
+        function addAchievement() {
+            // read what the user typed
+            let title = document.getElementById("title").value;
+            let category = document.getElementById("category").value;
+            let date = document.getElementById("date").value;
+            let description = document.getElementById("description").value;
+            let photo = document.getElementById("photo").value;
+            let certificate = document.getElementById("certificate").value;
+
+            // make sure title and description are not empty
+            if (title === "" || description === "") {
+                alert("Please enter a title and description");
+                return;
+            }
+
+            // put everything into one item and add it to the list
+            let item = {
+                title: title,
+                category: category,
+                date: date,
+                description: description,
+                photo: photo,
+                certificate: certificate
+            };
+            achievements.push(item);
+
+            // clear the form
+            document.getElementById("title").value = "";
+            document.getElementById("date").value = "";
+            document.getElementById("description").value = "";
+            document.getElementById("photo").value = "";
+            document.getElementById("certificate").value = "";
+
+            // show all achievements and go to that tab
+            document.getElementById("filter").value = "All";
+            alert("Achievement added!");
+            showTab("list");
+        }
+
+        // 5. This shows the achievements (only the chosen category)
+        function showAchievements() {
+            let filter = document.getElementById("filter").value;
+            let output = "";
+            let count = 0;
+
+            // go through the list one by one
+            for (let i = 0; i < achievements.length; i++) {
+                let a = achievements[i];
+
+                // skip this one if it is not the chosen category
+                if (filter !== "All" && a.category !== filter) {
+                    continue;
+                }
+                count++;
+
+                output += "<div class='card'>";
+                if (a.photo !== "") {
+                    output += "<img src='" + a.photo + "'>";
+                }
+                output += "<h3>" + a.title + "</h3>";
+                output += "<p>" + a.category + " | " + a.date + "</p>";
+                output += "<p>" + a.description + "</p>";
+                if (a.certificate !== "") {
+                    output += "<p><a href='" + a.certificate + "' target='_blank'>View certificate</a></p>";
+                }
+                output += "<button onclick='deleteAchievement(" + i + ")'>Delete</button>";
+                output += "</div>";
+            }
+
+            if (count === 0) {
+                output = "<p>No achievements here yet.</p>";
+            }
+
+            document.getElementById("list").innerHTML = output;
+            document.getElementById("count").textContent = "Showing " + count + " of " + achievements.length;
+        }
+
+        // 6. This removes one achievement
+        function deleteAchievement(i) {
+            achievements.splice(i, 1);
+            showAchievements();
+        }
+
+        // 7. This shows the numbers on the Stats tab
+        function showStats() {
+            // box for the total
+            let output = "<div class='statBox'><h3>" + achievements.length + "</h3><p>Total</p></div>";
+
+            // one box for each category
+            for (let c = 0; c < categories.length; c++) {
+                let count = 0;
+                for (let i = 0; i < achievements.length; i++) {
+                    if (achievements[i].category === categories[c]) {
+                        count++;
+                    }
+                }
+                output += "<div class='statBox'><h3>" + count + "</h3><p>" + categories[c] + "</p></div>";
+            }
+
+            // box for certificates
+            let certCount = 0;
+            for (let i = 0; i < achievements.length; i++) {
+                if (achievements[i].certificate !== "") {
+                    certCount++;
+                }
+            }
+            output += "<div class='statBox'><h3>" + certCount + "</h3><p>Certificates</p></div>";
+
+            document.getElementById("stats").innerHTML = output;
+        }
+
+        // 8. When the page opens, start on the Home tab
+        showTab("home");
+    </script>
+
+</body>
+</html>
